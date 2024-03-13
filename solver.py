@@ -1,19 +1,26 @@
-
 import random
 
 def print_board(bo):
     for i in range(len(bo)):
         if i % 3 == 0 and i != 0:
-            print("- - - - - - - - - - - - - ")
+            print("- - - - - - - - - - - - - ") # prints horizontal dashes
 
         for j in range(len(bo[0])):
             if j % 3 == 0 and j != 0:
-                print(" | ", end="")
+                print(" | ", end="") # prints vertical dashes
 
             if j == 8:
-                print(bo[i][j])
+                print(bo[i][j]) # prints last number in a row
             else:
-                print(str(bo[i][j]) + " ", end="")
+                print(str(bo[i][j]) + " ", end="") # prints numbers
+
+def find_empty(bo):
+    for i in range(len(bo)):
+        for j in range(len(bo[0])):
+            if bo[i][j] == 0:
+                return (i, j)  # row, col
+
+    return None
 
 board = [
     [7,8,0,4,0,0,1,2,0],
@@ -27,4 +34,46 @@ board = [
     [0,4,9,2,0,6,0,0,7]
 ]
 
+def valid(bo, number, position):
+    # Check row
+    for i in range(len(bo[0])):
+        if bo[position[0]][i] == number and position[1] != i:
+            return False
+        
+    # Check column
+    for i in range(len(bo)):
+        if bo[i][position[1]] == number and position[0] != i:
+            return False
+
+    # Check box (1 of 9 boxes)
+    box_x = position[1] // 3 # 0, 1, 2
+    box_y = position[0] // 3
+        
+    for i in range(box_y * 3, box_y * 3 + 3):
+        for j in range(box_x * 3, box_x * 3 + 3):
+            if bo[i][j] == number and (i,j) != position:
+                return False # found duplicate
+
+    return True
+
+# Recursive backtracking
+def solve(bo):
+    find = find_empty(bo)
+    # base case, the board is solved when no empty spaces are left
+    if not find:
+        return True
+    # recursive case
+    else:
+        row, col = find
+    for i in range (1,10):
+        if valid(bo, i, (row, col)):
+            bo[row][col] = i
+            if solve(bo):
+                return True
+            bo[row][col] = 0
+    return False
+
+print_board(board)
+solve(board)
+print("\n")
 print_board(board)
